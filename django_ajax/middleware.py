@@ -17,7 +17,7 @@ class AJAXMiddleware(object):
         otherwise return the original response.
         """
         if request.is_ajax():
-            return render_to_json(response)
+            return render_to_json(request, response)
         return response
 
     def process_exception(self, request, exception):

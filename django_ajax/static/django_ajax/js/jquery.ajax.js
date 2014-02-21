@@ -78,7 +78,8 @@ var ajax = function (url, options) {
                     if (onError)
                         onError(response);
                     else
-                        alert(options.method.toUpperCase() + ' ' + url + '   ' + response.status + ' ' + response.statusText + '\n' + response.content);
+                        ShowError('AJAX ERROR!', response.status + ' ' + response.statusText, response.content);
+                        //alert(options.method.toUpperCase() + ' ' + url + '   ' + response.status + ' ' + response.statusText + '\n' + response.content);
                     break;
             }
         },
@@ -86,12 +87,23 @@ var ajax = function (url, options) {
             if (onError)
                 onError(response);
             else
-                alert(options.method.toUpperCase() + ' ' + url + '   ' + response.status + ' ' + response.statusText + '\n' + response.content)
+                ShowError('AJAX ERROR!', response.status + ' ' + response.statusText, response.content);
+                //alert(options.method.toUpperCase() + ' ' + url + '   ' + response.status + ' ' + response.statusText + '\n' + response.content)
         },
         complete: function(response) {
             onComplete && onComplete(response);
         }
     });
+
+    function ShowError(title, message, content) {
+        $('body').append(ajax.DEFAULTS['toolbar_template']);
+
+        var $toolbar = $('.django-ajax-toolbar');
+        $toolbar.find('#title').html(title);
+        $toolbar.find('#message').html(message);
+        $toolbar.find('#description').html(description);
+        $toolbar.show();
+    }
 
     function csrfSafeMethod(method) {
         // these HTTP methods do not require CSRF protection
@@ -146,7 +158,8 @@ ajax.DEFAULTS = {
     onError: null,
     onBeforeSend: null,
     onComplete: null,
-    onRedirect: null
+    onRedirect: null,
+    toolbar_template: '<style type="text/css">.django-ajax-toolbar {position:fixed;left:0;bottom:0;height:30px;width:100%;-moz-box-sizing:border-box;z-index: 10000;}.django-ajax-toolbar.open{top: 0;height: 100%;}.django-ajax-toolbar a{color: #f5f5f5;}.django-ajax-toolbar-header{color:#f5f5f5;background-color:#8B0000;padding:5px;}.django-ajax-toolbar-link{float:right;margin-right:5px}.django-ajax-toolbar-content{color:#000000;background-color:#ffffff;padding: 0 0 20px;overflow-y:auto;height:95%}</style><div class="django-ajax-toolbar" style="display: none"><div class="django-ajax-toolbar-header"><div class="django-ajax-toolbar-link"><a href="javascript:void(0)" onclick="$(this).closest(\'.django-ajax-toolbar\').remove()">close</a></div><a href="javascript:void(0)" onclick="djangoAjaxToolbarToggle(this)"><strong id="title"></strong> <small id="message"></small></a></div><div class="django-ajax-toolbar-content" id="description"></div><script type="text/javascript">function djangoAjaxToolbarToggle(sender){var $djangoAjaxToolbar=$(sender).closest(".django-ajax-toolbar");if($djangoAjaxToolbar.hasClass("open"))$djangoAjaxToolbar.removeClass("open"); else $djangoAjaxToolbar.addClass("open")}</script></div>'
 };
 
 function ajaxPost(url, data, onSuccess, options) {
