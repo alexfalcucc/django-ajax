@@ -3,9 +3,11 @@ Shortcuts
 """
 from __future__ import unicode_literals
 
+import sys
+
 from django.conf import settings
-from django.http.response import Http404, HttpResponseServerError
-from django.views.debug import ExceptionReporter
+from django.http.response import Http404
+from django.views import debug
 
 from django_ajax.response import JSONResponse
 
@@ -72,7 +74,7 @@ REASON_PHRASES = {
 }
 
 
-def render_to_json(response, *args, **kwargs):
+def render_to_json(request, response, *args, **kwargs):
     """
     Creates the main structure and returns the JSON response.
     """
@@ -81,13 +83,12 @@ def render_to_json(response, *args, **kwargs):
         status_code = response.status_code
     elif issubclass(type(response), Http404):
         status_code = 404
+        if settings.DEBUG:
+            response = debug.technical_404_response(request, response)
     elif issubclass(type(response), Exception):
         status_code = 500
         if settings.DEBUG:
-            import sys
-            reporter = ExceptionReporter(None, *sys.exc_info())
-            text = reporter.get_traceback_text()
-            response = HttpResponseServerError(text, content_type='text/plain')
+            response = debug.technical_500_response(request, *sys.exc_info())
     else:
         status_code = 200
 
